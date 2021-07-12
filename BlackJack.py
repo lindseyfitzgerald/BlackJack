@@ -2,7 +2,8 @@ import random
 import db as money
 import sys
 
-def create_deck():
+def createDeck():
+    #Creates and returns a deck of cards
     suits = ['Hearts', 'Diamonds', 'Spades', 'Clubs']
     ranks = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'Jack', 'Queen', 'King', 'Ace']
     values = [2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10, 11]
@@ -19,8 +20,10 @@ def create_deck():
             counter += 1
     return deck
 
-def deal_player_card(deck, player_cards):
-    #Figure out how to pop random choice off lists
+def dealPlayerCard(deck, playerCards):
+    #deals a single card to player. If Ace is drawn, player is given option to
+    #choose between 1 and 11. If Ace = 11 causes player to bust, 1 is
+    #automatically chosen. 
 
     card = random.choice(deck)
     deck.remove(card)
@@ -30,79 +33,82 @@ def deal_player_card(deck, player_cards):
     value2 = int(card[2])
     value3 = 0
     value3 += value2
-    single_card = (suit, rank, value3)
+    singleCard = (suit, rank, value3)
 
-    player_points = 0
-    for card in player_cards:
+    playerPoints = 0
+    for card in playerCards:
         amount = int(card[2])
-        player_points += amount
+        playerPoints += amount
     
     if value3 == 11:
-        value1 = player_points + value3
+        value1 = playerPoints + value3
         if value1 > 21:
             value3 = 1
             print("Ace = 1")
         elif value1 <= 21:
             value3 = 11
             ("Ace = 11")
-        player_cards.append(single_card)
+        playerCards.append(singleCard)
     else:
-        player_cards.append(single_card)
-    return player_cards
+        playerCards.append(singleCard)
+    return playerCards
 
-def show_player_hand(player_cards):
-    for card in player_cards:
+def showPlayerHand(playerCards):
+    #show current player hand
+    for card in playerCards:
         suit = card[0]
         rank = card[1]
         print(str(rank) + " of " + str(suit))
 
-def deal_dealer_card(deck, dealer_cards):
+def dealDealerCard(deck, dealerCards):
+    #deals single card to dealer
     card = random.choice(deck)
     deck.remove(card)
     suit = card[0]
     rank = card[1]
     value = card[2]
-    single_card = (suit, rank, value)
-    dealer_cards.append(single_card)
-    return dealer_cards
+    singleCard = (suit, rank, value)
+    dealerCards.append(singleCard)
+    return dealerCards
 
-def show_dealer_hand(dealer_cards):
-    for card in dealer_cards:
+def showDealerHand(dealerCards):
+    #show dealer current hand
+    for card in dealerCards:
         suit = card[0]
         rank = card[1]
         print(str(rank) + " of " + str(suit))
 
-def determine_player_pts(player_cards):
-    player_points = 0
-    for card in player_cards:
+def determinePlayerPoints(playerCards):
+    #calculate current player points. 
+    playerPoints = 0
+    for card in playerCards:
         amount = int(card[2])
-        player_points += amount
-    return player_points
+        playerPoints += amount
+    return playerPoints
 
-def determine_dealer_pts(dealer_cards, deck):       
-    dealer_points = 0
-    for card in dealer_cards:
+def determineDealerPoints(dealerCards, deck):
+    #calculate current dealer points.
+    #if dealer points are < 17, 3rd card is automatically dealt. 
+    dealerPoints = 0
+    for card in dealerCards:
         amount = int(card[2])
-        dealer_points += amount
+        dealerPoints += amount
 
-    if dealer_points < 17:
+    if dealerPoints < 17:
         card = random.choice(deck)
         deck.remove(card)
         suit = card[0]
         rank = card[1]
         value = card[2]
-        single_card = (suit, rank, value)
-        dealer_cards.append(single_card)
-        return dealer_cards
+        singleCard = (suit, rank, value)
+        dealerCards.append(singleCard)
+        return dealerCards
             
-
-#def get_player_money():
-#    money.read_player_money()
-#    player_money = money.read_player_money()
-#    player_money = str(player_money)
-#    return player_money
     
-def determine_winner(player_cards, dealer_cards, bet_amount):
+def determineWinner(playerCards, dealerCards, betAmount):
+    #imports player money .txt file
+    #Calc current points and determine winner.
+    #Add/Subtract bet based on winner. 
     money.read_player_money()
     player_money = money.read_player_money()
     total = "0"
@@ -111,66 +117,67 @@ def determine_winner(player_cards, dealer_cards, bet_amount):
     total = round(float(total), 2)
 
     
-    player_points = 0
-    for card in player_cards:
+    playerPoints = 0
+    for card in playerCards:
         amount = int(card[2])
-        player_points += amount
-    print("\nYOUR POINTS: \t" + str(player_points))
+        playerPoints += amount
+    print("\nYOUR POINTS: \t" + str(playerPoints))
 
-    dealer_points = 0
-    for card in dealer_cards:
+    dealerPoints = 0
+    for card in dealerCards:
         amount = int(card[2])
-        dealer_points += amount
-    print("DEALER POINTS: \t" + str(dealer_points))
+        dealerPoints += amount
+    print("DEALER POINTS: \t" + str(dealerPoints))
     
     
-    if (player_points > 21 and dealer_points > 21):
+    if (playerPoints > 21 and dealerPoints > 21):
         print("\nNo winner")
         print("Money: $" + str(total))
     
-    elif (player_points > 21 and dealer_points <= 21):
+    elif (playerPoints > 21 and dealerPoints <= 21):
         print("\nDealer wins")
         #losings = []
-        losings = (bet_amount * 1.5)
-        new_total = total - (losings)
-        money.write_player_money(new_total)
-        print("Money: $" + str(new_total))
+        losings = (betAmount * 1.5)
+        newTotal = round(total - (losings), 2)
+        money.write_player_money(newTotal)
+        print("Money: $" + str(newTotal))
         
-    elif (player_points <= 21 and dealer_points > 21):
+    elif (playerPoints <= 21 and dealerPoints > 21):
         print("\nPlayer wins")
         #winnings = []
-        winnings = bet_amount * 1.5
-        new_total = total + (winnings)
-        money.write_player_money(new_total)
-        print("Money: $" + str(new_total))
+        winnings = betAmount * 1.5
+        newTotal = round(total + (winnings), 2)
+        money.write_player_money(newTotal)
+        print("Money: $" + str(newTotal))
         #player wins
         
-    elif (player_points <= 21 and dealer_points <= 21):
-        if (player_points > dealer_points):
+    elif (playerPoints <= 21 and dealerPoints <= 21):
+        if (playerPoints > dealerPoints):
             print("\nPlayer wins")
             #winnings = []
-            winnings = bet_amount * 1.5
-            new_total = total + (winnings)
-            money.write_player_money(new_total)
-            print("Money: $" + str(new_total))
+            winnings = betAmount * 1.5
+            newTotal = round(total + (winnings), 2)
+            money.write_player_money(newTotal)
+            print("Money: $" + str(newTotal))
             #player wins
             
-        elif (player_points < dealer_points):
+        elif (playerPoints < dealerPoints):
             print("\nDealer wins")
             #losings = []
-            losings = (bet_amount * 1.5)
-            new_total = total - (losings)
-            money.write_player_money(new_total)
-            print("Money: $" + str(new_total))
+            losings = (betAmount * 1.5)
+            newTotal = round(total - (losings), 2)
+            money.write_player_money(newTotal)
+            print("Money: $" + str(newTotal))
             #dealer wins
             
-        elif (player_points == dealer_points):
+        elif (playerPoints == dealerPoints):
             print("\nTie game")
             print("Money: $" + str(total))
             #tie / no winner
             
     
 def shuffle_deck(deck):
+    #shuffles the deck
     random.shuffle(deck)
     print("The deck has been shuffled\n")
 
@@ -179,16 +186,19 @@ def display():
     print("Blackjack payout is 3:2\n")
 
 def bet():
+    #import player money .txt file
+    #completes data validation on bet. 
+    #If player money is < 5 it will ask player if they would like more money added to account.
     money.read_player_money()
     player_money = money.read_player_money()
     total = "0"
     for value in player_money:
         total += str(value)
-    total = float(total)
+    total = round(float(total), 2)
     print("Money: $" + str(total))
     while True:
         try:
-            bet_amount = float(input("Bet amount: $"))
+            betAmount = float(input("Bet amount: $"))
         except ValueError:
             print("Invalid bet amount. Try again \n")
             continue
@@ -201,64 +211,67 @@ def bet():
             elif choice.lower() == "n":
                 print("Well..... okay. Bye!")
                 sys.exit()
-        elif bet_amount <= total:
-            if bet_amount >= 5 and bet_amount <=1000:    
-                return bet_amount
+        elif betAmount <= total:
+            if betAmount >= 5 and betAmount <=1000:    
+                return betAmount
             else:
                 print("Please enter a bet between 5 and 1000!")
                 continue
         else:
-            print("You cant bet more than you have")
+            print("You can not bet more than you have in your account.")
             continue
         
         
     
 def main():
     display()
-    deck = create_deck()
+    deck = createDeck()
     #player_money = get_player_money()
 
     choice = "y"
     while choice.lower() == "y":
-        player_cards = []
-        dealer_cards = []
+        playerCards = []
+        dealerCards = []
 
 
         #shuffle_deck(deck)
-        player_points = determine_player_pts(player_cards)
-        bet_amount = bet()
+        playerPoints = determinePlayerPoints(playerCards)
+        betAmount = bet()
         print("\nDEALER'S SHOW CARD: ")
-        deal_dealer_card(deck, dealer_cards)
-        show_dealer_hand(dealer_cards)
-        deal_dealer_card(deck, dealer_cards)
+        dealDealerCard(deck, dealerCards)
+        showDealerHand(dealerCards)
+        dealDealerCard(deck, dealerCards)
 
         print("\nYOUR CARDS: ")
-        deal_player_card(deck, player_cards)
-        deal_player_card(deck, player_cards)
-        show_player_hand(player_cards)
+        dealPlayerCard(deck, playerCards)
+        dealPlayerCard(deck, playerCards)
+        showPlayerHand(playerCards)
 
 
         while (True):
-            hit_or_stand = input("\nHit or stand? (hit/stand): ")
-            if hit_or_stand.lower() == "hit":
-                deal_player_card(deck, player_cards)
+            hitOrStand = input("\nHit or stand? (hit/stand): ")
+            if hitOrStand.lower() == "hit":
+                dealPlayerCard(deck, playerCards)
                 print("\nYOUR CARDS: ")
-                show_player_hand(player_cards)
-                player_points = determine_player_pts(player_cards)
-                if player_points > 21:
+                showPlayerHand(playerCards)
+                playerPoints = determinePlayerPoints(playerCards)
+                if playerPoints > 21:
                     print("\nBUST!")
                     break
                 else:
                     continue
                 break
                 
-            elif hit_or_stand.lower() == "stand":
+            elif hitOrStand.lower() == "stand":
                 print("\nDEALER'S CARDS")
-                determine_dealer_pts(dealer_cards, deck)
-                show_dealer_hand(dealer_cards)
+                determineDealerPoints(dealerCards, deck)
+                showDealerHand(dealerCards)
                 break
+            else:
+                print("Please enter 'hit' or 'stand'. Try Again. ")
+                continue
 
-        determine_winner(player_cards, dealer_cards, bet_amount)
+        determineWinner(playerCards, dealerCards, betAmount)
         
         choice = input("\nWould you like to play again? (y/n): ")
     print("\nCome back soon!")
